@@ -21,7 +21,7 @@ docs on the instance of this software at `postpass.geofabrik.de`.
 
 A simple
 
-    go build -o postpass-server postpass/main.go
+    go build -o postpass-server cmd/postpass/main.go
 
 should do the trick.
 
@@ -43,7 +43,9 @@ else you'll have random people on the Internet doing the "little bobby tables"
 joke on you:
 
     create user readonly with password 'readonly';
-    grant select on all tables in schema public to readonly;
+    grant usage on schema public to readonly;
+    grant select on all tables in schema public to readonly ;
+    alter default privileges in schema public grant select on tables to readonly;
 
 You could now start the Postpass software manually (it will listen on
 its own port, by default 8081); for a halfway reliable production environment
@@ -69,7 +71,7 @@ and you will probably want to configure a standard web server to sit
 in front of Postpass, for example Apache:
 
     <VirtualHost *:80>
-      ServerName my.postpass.server
+      ServerName postpass.example.com
 
       DocumentRoot /var/www/html
 
@@ -81,22 +83,32 @@ in front of Postpass, for example Apache:
 
 ## Using
 
-### Curl
+### `/interpreter`
 
-While GET requests are supported, POST requests are probably the better way 
-to use the service. Here's a simple test query that will load fast food POIs
-from your local osm2pgsql database:
+The main query end point is `/interpreter`.
 
-    curl -g https://postpass.geofabrik.de/api/0.2/interpreter --data-urlencode "data=
-        SELECT name, way 
+GET and POST requests are supported. Here's a simple test query that will load
+fast food POIs from your local osm2pgsql database. (schema is based on
+[postpass.geofabrik.de schema](https://github.com/woodpeck/postpass-ops)).
+
+    curl -G http://localhost:8081/interpreter --data-urlencode "data=
+        SELECT tags->>'name' as name, geom 
         FROM postpass_point
-        WHERE amenity='fast_food' 
-        AND way && st_setsrid(st_makebox2d(st_makepoint(8.34,48.97),st_makepoint(8.46,49.03)), 4326)"
+        WHERE tags->>'amenity'='fast_food' 
+        AND geom && st_setsrid(st_makebox2d(st_makepoint(8.34,48.97),st_makepoint(8.46,49.03)), 4326)"
 
 Large queries can be saved in a separate file. Use curl's `@filename` option to
 read that file. Here the conents of the file `query.sql` will be read.
 
-    curl -g https://postpass.geofabrik.de/api/0.2/interpreter --data-urlencode "data@query.sql"
+    curl -G http://localhost:8081/interpreter --data-urlencode "data@query.sql"
+
+### `/explain`
+
+A [PostgreSQL `EXPLAIN` output](https://www.postgresql.org/docs/current/sql-explain.html) is returned, in [JSON output format](https://www.postgresql.org/docs/current/sql-explain.html#:~:text=JSON%20output%20formatting%3A).
+
+e.g.:
+
+    curl -G http://localhost:8081/explain --data-urlencode "data=SELECT tags->>'name' as name, geom FROM postpass_point"
 
 ### LLM
 
@@ -133,7 +145,7 @@ Examples:
 
 1. Return geometries (default GeoJSON):
 
-> curl -g [https://postpass.geofabrik.de/api/0.2/interpreter](https://postpass.geofabrik.de/api/0.2/interpreter) --data-urlencode "data=
+> curl -G [https://postpass.geofabrik.de/api/0.2/interpreter](https://postpass.geofabrik.de/api/0.2/interpreter) --data-urlencode "data=
 > SELECT name, geom
 > FROM postpass\_point
 > WHERE tags->>'amenity' = 'fast\_food'
@@ -141,7 +153,7 @@ Examples:
 
 2. Return aggregated result (no geometry, use `geojson=false`):
 
-> curl -g [https://postpass.geofabrik.de/api/0.2/interpreter](https://postpass.geofabrik.de/api/0.2/interpreter)
+> curl -G [https://postpass.geofabrik.de/api/0.2/interpreter](https://postpass.geofabrik.de/api/0.2/interpreter)
 > \--data-urlencode "options\[geojson]=false"
 > \--data-urlencode "data=
 > SELECT
