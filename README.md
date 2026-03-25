@@ -102,6 +102,14 @@ read that file. Here the conents of the file `query.sql` will be read.
 
     curl -g http://localhost:8081/interpreter --data-urlencode "data@query.sql"
 
+### `/explain`
+
+A [PostgreSQL `EXPLAIN` output](https://www.postgresql.org/docs/current/sql-explain.html) is returned, in [JSON output format](https://www.postgresql.org/docs/current/sql-explain.html#:~:text=JSON%20output%20formatting%3A).
+
+e.g.:
+
+    curl -g http://localhost:8081/explain --data-urlencode "data=SELECT tags->>'name' as name, geom FROM postpass_point"
+
 ### LLM
 
 This prompt helps to generate good results with LLMs like ChatGPT.
