@@ -87,7 +87,7 @@ While GET requests are supported, POST requests are probably the better way
 to use the service. Here's a simple test query that will load fast food POIs
 from your local osm2pgsql database:
 
-    curl -g https://postpass.geofabrik.de/api/0.2/interpreter --data-urlencode "data=
+    curl -g http://localhost:8081/interpreter --data-urlencode "data=
         SELECT name, way 
         FROM postpass_point
         WHERE amenity='fast_food' 
@@ -96,7 +96,7 @@ from your local osm2pgsql database:
 Large queries can be saved in a separate file. Use curl's `@filename` option to
 read that file. Here the conents of the file `query.sql` will be read.
 
-    curl -g https://postpass.geofabrik.de/api/0.2/interpreter --data-urlencode "data@query.sql"
+    curl -g http://localhost:8081/interpreter --data-urlencode "data@query.sql"
 
 ### LLM
 
