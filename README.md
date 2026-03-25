@@ -91,7 +91,7 @@ GET and POST requests are supported. Here's a simple test query that will load
 fast food POIs from your local osm2pgsql database. (schema is based on
 [postpass.geofabrik.de schema](https://github.com/woodpeck/postpass-ops)).
 
-    curl -g http://localhost:8081/interpreter --data-urlencode "data=
+    curl -G http://localhost:8081/interpreter --data-urlencode "data=
         SELECT tags->>'name' as name, geom 
         FROM postpass_point
         WHERE tags->>'amenity'='fast_food' 
@@ -100,7 +100,7 @@ fast food POIs from your local osm2pgsql database. (schema is based on
 Large queries can be saved in a separate file. Use curl's `@filename` option to
 read that file. Here the conents of the file `query.sql` will be read.
 
-    curl -g http://localhost:8081/interpreter --data-urlencode "data@query.sql"
+    curl -G http://localhost:8081/interpreter --data-urlencode "data@query.sql"
 
 ### `/explain`
 
@@ -108,7 +108,7 @@ A [PostgreSQL `EXPLAIN` output](https://www.postgresql.org/docs/current/sql-expl
 
 e.g.:
 
-    curl -g http://localhost:8081/explain --data-urlencode "data=SELECT tags->>'name' as name, geom FROM postpass_point"
+    curl -G http://localhost:8081/explain --data-urlencode "data=SELECT tags->>'name' as name, geom FROM postpass_point"
 
 ### LLM
 
@@ -145,7 +145,7 @@ Examples:
 
 1. Return geometries (default GeoJSON):
 
-> curl -g [https://postpass.geofabrik.de/api/0.2/interpreter](https://postpass.geofabrik.de/api/0.2/interpreter) --data-urlencode "data=
+> curl -G [https://postpass.geofabrik.de/api/0.2/interpreter](https://postpass.geofabrik.de/api/0.2/interpreter) --data-urlencode "data=
 > SELECT name, geom
 > FROM postpass\_point
 > WHERE tags->>'amenity' = 'fast\_food'
@@ -153,7 +153,7 @@ Examples:
 
 2. Return aggregated result (no geometry, use `geojson=false`):
 
-> curl -g [https://postpass.geofabrik.de/api/0.2/interpreter](https://postpass.geofabrik.de/api/0.2/interpreter)
+> curl -G [https://postpass.geofabrik.de/api/0.2/interpreter](https://postpass.geofabrik.de/api/0.2/interpreter)
 > \--data-urlencode "options\[geojson]=false"
 > \--data-urlencode "data=
 > SELECT
