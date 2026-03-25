@@ -83,17 +83,19 @@ in front of Postpass, for example Apache:
 
 ## Using
 
-### Curl
+### `/interpreter`
 
-While GET requests are supported, POST requests are probably the better way 
-to use the service. Here's a simple test query that will load fast food POIs
-from your local osm2pgsql database:
+The main query end point is `/interpreter`.
+
+GET and POST requests are supported. Here's a simple test query that will load
+fast food POIs from your local osm2pgsql database. (schema is based on
+[postpass.geofabrik.de schema](https://github.com/woodpeck/postpass-ops)).
 
     curl -g http://localhost:8081/interpreter --data-urlencode "data=
-        SELECT name, way 
+        SELECT tags->>'name' as name, geom 
         FROM postpass_point
-        WHERE amenity='fast_food' 
-        AND way && st_setsrid(st_makebox2d(st_makepoint(8.34,48.97),st_makepoint(8.46,49.03)), 4326)"
+        WHERE tags->>'amenity'='fast_food' 
+        AND geom && st_setsrid(st_makebox2d(st_makepoint(8.34,48.97),st_makepoint(8.46,49.03)), 4326)"
 
 Large queries can be saved in a separate file. Use curl's `@filename` option to
 read that file. Here the conents of the file `query.sql` will be read.
