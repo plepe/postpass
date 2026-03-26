@@ -27,6 +27,7 @@ func HandleInterpreter(db *sql.DB, slow chan<- WorkItem, medium chan<- WorkItem,
 
 	writer.Header().Set("Access-Control-Allow-Origin", "*")
 	writer.Header().Set("Content-Type", "application/json")
+	writer.Header().Set("Server", "Postpass API 0.2")
 
 	// process GET/POST parameters
 	_ = r.ParseForm()
