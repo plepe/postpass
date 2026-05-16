@@ -45,17 +45,11 @@ func HandleInterpreter(db *sql.DB, slow chan<- WorkItem, medium chan<- WorkItem,
 		geojson, _ = strconv.ParseBool(tGeojson[0])
 	}
 
-	collection := true
-	tCollection := r.Form["options[collection]"]
-	if tCollection != nil {
-		collection, _ = strconv.ParseBool(tCollection[0])
-	}
-
 	id := Count.Add(1)
 
-	log.Printf("request #%d: query '%s' g=%t c=%t\n", id,
+	log.Printf("request #%d: query '%s' g=%t\n", id,
 		strings.Join(strings.Fields(strings.TrimSpace(data)), " "),
-        geojson, collection)
+        geojson)
 
 	var startTime = time.Now().UnixMilli()
 
@@ -73,7 +67,6 @@ func HandleInterpreter(db *sql.DB, slow chan<- WorkItem, medium chan<- WorkItem,
 	work := WorkItem{
 		request:    data,
 		geojson:    geojson,
-		collection: collection,
 		response:   rchan,
 		closer:     closeChan,
 	}
