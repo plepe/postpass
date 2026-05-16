@@ -11,7 +11,6 @@ type WorkItem struct {
 	request    string
 	geojson    bool
 	collection bool
-	own_agg    bool
 	response   chan SqlResponse
 	closer     chan struct{}
 }

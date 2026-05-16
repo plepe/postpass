@@ -39,7 +39,7 @@ func Worker(db *sql.DB, id int, tasks <-chan WorkItem) {
 		var rows *sql.Rows
 		var err error
 
-        if task.own_agg && task.collection && task.geojson {
+        if task.collection && task.geojson {
 
             // this makes Postgres create GeoJSON for individual rows, 
             // and aggregates them into a collection here instead of 
@@ -97,7 +97,7 @@ func Worker(db *sql.DB, id int, tasks <-chan WorkItem) {
 
         } else {
 
-            // in all other (non-own_agg) cases, the complete response is built
+            // the complete response is built
             // in PostgreSQL. this can lead to "JSON too large" problems
             // (at over ~ 250 MB)
 
@@ -106,20 +106,6 @@ func Worker(db *sql.DB, id int, tasks <-chan WorkItem) {
                 // if task.collection is not set, we execute the query as-is.
                 // this will only work if the query returns exactly one row and one column.
                 rows, err = db.QueryContext(taskCtx, task.request)
-
-            } else if task.geojson {
-
-                // this generates un-prettified GeoJSON
-
-                rows, err = db.QueryContext(taskCtx, fmt.Sprintf(
-                    `SELECT json_build_object(
-                        'type', 'FeatureCollection',
-                        'postpass_properties', jsonb_build_object(
-                           'timestamp', (select value from osm2pgsql_properties where property='replication_timestamp'),
-                           'generator', 'Postpass API 0.2'
-                           ),
-                        'features', coalesce(jsonb_agg(ST_AsGeoJSON(t.*)::json), '[]'::jsonb))
-                    FROM (%s) as t;`, task.request))
 
             } else {
 
