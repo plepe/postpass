@@ -84,18 +84,18 @@ func Worker(db *sql.DB, id int, tasks <-chan WorkItem) {
         for rows.Next() {
             err = rows.Scan(&line)
             if err != nil {
-                break;
+                break
             }
-            builder.WriteString(comma);
-            builder.WriteString(line);
-            comma = ",";
+            builder.WriteString(comma)
+            builder.WriteString(line)
+            comma = ","
         }
 
         if err != nil {
             goto sqlerror
         }
 
-        builder.WriteString("]}");
+        builder.WriteString("]}")
         res = builder.String()
 
 		// discard result
