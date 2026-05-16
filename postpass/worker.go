@@ -61,7 +61,7 @@ func Worker(db *sql.DB, id int, tasks <-chan WorkItem) {
                 goto sqlerror
             }
 
-            builder.WriteString("{ \"type\": \"FeatureCollection\", \"properties\": ")
+            builder.WriteString("{ \"type\": \"FeatureCollection\", \"postpass_properties\": ")
             rows.Next()
             err = rows.Scan(&res)
             if err != nil {
@@ -114,7 +114,7 @@ func Worker(db *sql.DB, id int, tasks <-chan WorkItem) {
                 rows, err = db.QueryContext(taskCtx, fmt.Sprintf(
                     `SELECT json_build_object(
                         'type', 'FeatureCollection',
-                        'properties', jsonb_build_object(
+                        'postpass_properties', jsonb_build_object(
                            'timestamp', (select value from osm2pgsql_properties where property='replication_timestamp'),
                            'generator', 'Postpass API 0.2'
                            ),
@@ -128,7 +128,7 @@ func Worker(db *sql.DB, id int, tasks <-chan WorkItem) {
 
                 rows, err = db.QueryContext(taskCtx, fmt.Sprintf(
                     `SELECT jsonb_pretty(jsonb_build_object(
-                        'metadata', jsonb_build_object(
+                        'postpass_properties', jsonb_build_object(
                            'timestamp', (select value from osm2pgsql_properties where property='replication_timestamp'),
                            'generator', 'Postpass API 0.2'
                            ),
